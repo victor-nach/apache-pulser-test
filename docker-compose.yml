@@ -1,0 +1,48 @@
+version: '3.5'
+
+services:
+  producer:
+    image: producer:latest
+    container_name: producer
+    build:
+      context: ./producer
+      dockerfile: ./Dockerfile
+    depends_on:
+      - standalone
+    environment:
+      - SERVICE_URL=pulsar://standalone:6650
+    networks:
+      - fullstack
+
+  standalone:
+    image: apachepulsar/pulsar
+    expose:
+      - 8080
+      - 6650
+    environment:
+      - PULSAR_MEM=" -Xms512m -Xmx512m -XX:MaxDirectMemorySize=1g"
+    command: >
+      /bin/bash -c
+      "bin/apply-config-from-env.py conf/standalone.conf
+      && bin/pulsar standalone"
+    networks:
+      - fullstack
+
+#  pulsar:
+#    image: apachepulsar/pulsar:2.4.0
+#    container_name: broker
+#    ports:
+#      - '6650:6650'
+#      - '8080:8080'
+#    volumes:
+#      - $PWD/data:/pulsar/data
+#    networks:
+#      fullstack:
+#          ipv4_address: 172.28.0.3
+
+networks:
+  fullstack:
+
+
+
+
